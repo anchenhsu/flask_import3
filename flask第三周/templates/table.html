@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.min.css" />
+</head>
+<body>
+    <center>
+        <form id="search-form">
+            <input type="text" id="search" name="search">
+        </form>
+    </center>
+
+    <div id="search-results"></div>
+
+        <table id="myDataTable" class="display">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>編號</th>
+                    <th>身高</th>   
+                    <th>體重</th>
+                    <th>BMI</th> 
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in (data) %}
+                <tr>
+                    <td><input type="checkbox" id="option{{ data[0] }}" name="option{{ data[0] }}"></td>
+                    <td>{{ data[0] }}</td>
+                    <td>{{ data[1] }}</td>   
+                    <td>{{ data[2] }}</td>
+                    <td>{{ data[3] }}</td>
+                </tr>
+                {% endfor %}
+                {% for data_select in (data_select) %}
+                <tr>
+                    <td><input type="checkbox" id="option{{ data[0] }}" name="option{{ data[0] }}"></td>
+                    <td>{{ data_select[0] }}</td>
+                    <td>{{ data_select[1] }}</td>   
+                    <td>{{ data_select[2] }}</td>
+                    <td>{{ data_select[3] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>    
+        <button id="btn" type="submit">匯出勾選資料</button>
+
+    <form action="/export" method="POST">
+        <button type="submit">匯出全部資料</button>
+    </form>
+
+    <!--引用jQuery-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.js"></script>
+    <!--引用dataTables.js-->
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+     
+
+<script type=text/javascript>
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#myDataTable").DataTable({
+            searching: false, //關閉filter功能
+            columnDefs: [{
+                orderable: false,
+            }],
+            lengthMenu: [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000],
+            ordering: false,
+        });
+    })
+</script>
+
+<script language="javascript" type="text/javascript">
+    $(document).ready(function(){
+        $('input[name="search"]').on('keyup', function() {
+            var searchValue = $(this).val();
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + "/search",
+                data: JSON.stringify({'search': searchValue}),
+                success: function(response) {
+                    $('#search-results').html(response['data_select']);
+                },
+                contentType: false,
+                processData: false, 
+                dataType: "json"
+                });
+            });
+    })
+</script>
+
+</body>
+</html>
